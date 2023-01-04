@@ -2,16 +2,19 @@ import React, { useEffect, useContext } from 'react'
 import { FaCode, FaUsers, FaStore, FaUserFriends } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 import Spinner from '../components/layout/Spinner'
+import RepoList from '../components/repos/RepoList'
 import GithubContext from '../context/github/GithubContext'
 import { useParams } from 'react-router-dom'
 
-function User({ match }) {
-  const { getUser, user, isLoading } = useContext(GithubContext)
+function User() {
+  const { getUser, user, isLoading, getUserRepos, repos } =
+    useContext(GithubContext)
 
   const params = useParams()
 
   useEffect(() => {
     getUser(params.login)
+    getUserRepos(params.login)
   }, [])
 
   const {
@@ -153,6 +156,7 @@ function User({ match }) {
             </div>
           </div>
         </div>
+        <RepoList repos={repos} />
       </div>
     </>
   )

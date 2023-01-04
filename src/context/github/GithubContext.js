@@ -1,4 +1,5 @@
 import { createContext, useState, useReducer } from 'react'
+import { useParams } from 'react-router-dom'
 import githubReducer from './GithubReducer'
 
 const GithubContext = createContext()
@@ -15,6 +16,7 @@ export const GithubProvider = ({ children }) => {
   const initialState = {
     users: [],
     user: {},
+    repos: [],
     isLoading: false, //if true there will be infinite spinner
   }
 
@@ -103,6 +105,41 @@ export const GithubProvider = ({ children }) => {
     }
   }
 
+  //get user's repos
+  const getUserRepos = async (login) => {
+    //refactoring loading true before fetch
+    setLoading()
+
+    const params = new URLSearchParams({
+      sort: 'created',
+      per_page: 10,
+    })
+
+    const response = await fetch(
+      `${GITHUB_URL}/users/${login}/repos?${params}`,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+        },
+      }
+    )
+
+    //should check response if error or not
+    const data = await response.json()
+    console.log('cek response')
+    console.log(data)
+
+    //state flow
+    // setUsers(data)
+    // setIsLoading(false)
+
+    //reducer flow
+    dispatch({
+      type: 'GET_REPOS',
+      payload: data,
+    })
+  }
+
   const setLoading = () =>
     dispatch({
       type: 'SET_LOADING',
@@ -129,9 +166,11 @@ export const GithubProvider = ({ children }) => {
         users: state.users,
         isLoading: state.isLoading,
         user: state.user,
+        repos: state.repos,
         searchUsers,
         clearUsers,
         getUser,
+        getUserRepos,
       }}
     >
       {children}
