@@ -14,24 +14,58 @@ export const GithubProvider = ({ children }) => {
   //use reducer
   const initialState = {
     users: [],
+    user: {},
     isLoading: false, //if true there will be infinite spinner
   }
 
   const [state, dispatch] = useReducer(githubReducer, initialState)
 
   //phase 1 :fetch all users when load page
+  //   const fetchUsers = async () => {
+  //     //refactoring loading true before fetch
+  //     setLoading()
+
+  //     const response = await fetch(`${GITHUB_URL}/users`, {
+  //       headers: {
+  //         Authorization: `token ${GITHUB_TOKEN}`,
+  //       },
+  //     })
+  //     const data = await response.json()
+  //     console.log(data)
+
+  //     //state flow
+  //     // setUsers(data)
+  //     // setIsLoading(false)
+
+  //     //reducer flow
+  //     dispatch({
+  //       type: 'GET_USERS',
+  //       payload: data,
+  //     })
+  //   }
+
   //phase 2 :will trigger fetch user when search
-  const fetchUsers = async () => {
+  const searchUsers = async (text) => {
+    if (text.length < 0) {
+      clearUsers()
+    }
     //refactoring loading true before fetch
     setLoading()
 
-    const response = await fetch(`${GITHUB_URL}/users`, {
+    const params = new URLSearchParams({
+      q: text,
+    })
+
+    const response = await fetch(`${GITHUB_URL}/search/users?${params}`, {
       headers: {
         Authorization: `token ${GITHUB_TOKEN}`,
       },
     })
-    const data = await response.json()
-    console.log(data)
+
+    //should check response if error or not
+    const { items } = await response.json()
+    console.log('cek response')
+    console.log(items)
 
     //state flow
     // setUsers(data)
@@ -40,13 +74,43 @@ export const GithubProvider = ({ children }) => {
     //reducer flow
     dispatch({
       type: 'GET_USERS',
-      payload: data,
+      payload: items,
     })
+  }
+
+  // get detail of user
+  const getUser = async (loginUser) => {
+    setLoading()
+
+    if (loginUser.length < 0) {
+    }
+
+    const response = await fetch(`${GITHUB_URL}/users/${loginUser}`, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+      },
+    })
+
+    if (response.status === '404') {
+      window.location = '/notfound'
+    } else {
+      const data = await response.json()
+
+      dispatch({
+        type: 'GET_USER',
+        payload: data,
+      })
+    }
   }
 
   const setLoading = () =>
     dispatch({
       type: 'SET_LOADING',
+    })
+
+  const clearUsers = () =>
+    dispatch({
+      type: 'CLEAR_USERS',
     })
 
   return (
@@ -64,7 +128,10 @@ export const GithubProvider = ({ children }) => {
       value={{
         users: state.users,
         isLoading: state.isLoading,
-        fetchUsers,
+        user: state.user,
+        searchUsers,
+        clearUsers,
+        getUser,
       }}
     >
       {children}
