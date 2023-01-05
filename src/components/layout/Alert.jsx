@@ -4,6 +4,7 @@ import AlertContext from '../../context/alert/AlertContext'
 function Alert() {
   const { alert } = useContext(AlertContext)
   return (
+    // && >> alert !==null ? <p></p> : ''
     alert !== null && (
       <p className='flex items-start mb-4 space-x2'>
         {alert.type === 'error' && (

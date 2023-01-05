@@ -19,7 +19,10 @@ function UserItem({ user: { login, avatar_url } }) {
         </div>
         <div>
           <h2 className='card-title'>{login}</h2>
-          <Link casslName='text-bae-content text opacity' to={`/user/${login}`}>
+          <Link
+            className='text-base-content text opacity'
+            to={`/user/${login}`}
+          >
             visit profile
           </Link>
         </div>
